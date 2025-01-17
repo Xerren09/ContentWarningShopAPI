@@ -12,7 +12,7 @@ Exposes an easy-to-use API to add custom items to the in-game shop. Loosely base
 
 ## Setup
 
-Download one of the DLLs from the releases page or use the one you already have if the mod is installed and add a reference to it in your project. If you are referencing a local DLL, be sure to set "Copy Local" to `No` to avoid distributing it with your mod, as this will cause issues.
+Download one of the DLLs from the [releases page](https://github.com/Xerren09/ContentWarningShopAPI/releases) or use the one you already have if the mod is installed and add a reference to it in your project. If you are referencing a local DLL, be sure to set "Copy Local" to `No` to avoid distributing it with your mod, as this will cause issues.
 
 > [!IMPORTANT]
 > The DLLs available on the releases page are built for use with different mod loaders. **For development, use the one without a suffix**, regardless of if you are building your mod for the Steam Workshop (vanilla mod loader) or Thunderstore (BepInEx).
