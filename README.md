@@ -1,12 +1,12 @@
 Content Warning Shop API
 ===
 
-![Steam Downloads](https://img.shields.io/steam/downloads/3408837293?style=flat-square&logo=steam&label=Downloads)
-![Steam Subscriptions](https://img.shields.io/steam/subscriptions/3408837293?style=flat-square&logo=steam&label=Subscriptions)
-![Steam Last Update Date](https://img.shields.io/steam/update-date/3408837293?style=flat-square&logo=steam&label=Updated)
-![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Downloads)
-![Thunderstore Likes](https://img.shields.io/thunderstore/likes/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Likes)
-![Thunderstore Version](https://img.shields.io/thunderstore/v/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Version)
+![Steam Downloads](https://img.shields.io/steam/downloads/3408837293?style=flat-square&logo=steam&label=Downloads&link=https%3A%2F%2Fsteamcommunity.com%2Fsharedfiles%2Ffiledetails%2F%3Fid%3D3408837293)
+![Steam Subscriptions](https://img.shields.io/steam/subscriptions/3408837293?style=flat-square&logo=steam&label=Subscriptions&link=https%3A%2F%2Fsteamcommunity.com%2Fsharedfiles%2Ffiledetails%2F%3Fid%3D3408837293)
+![Steam Last Update Date](https://img.shields.io/steam/update-date/3408837293?style=flat-square&logo=steam&label=Updated&link=https%3A%2F%2Fsteamcommunity.com%2Fsharedfiles%2Ffiledetails%2F%3Fid%3D3408837293)
+![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Downloads&link=https%3A%2F%2Fthunderstore.io%2Fc%2Fcontent-warning%2Fp%2FXerren%2FShopAPI%2F)
+![Thunderstore Likes](https://img.shields.io/thunderstore/likes/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Likes&link=https%3A%2F%2Fthunderstore.io%2Fc%2Fcontent-warning%2Fp%2FXerren%2FShopAPI%2F)
+![Thunderstore Version](https://img.shields.io/thunderstore/v/Xerren/ShopAPI?style=flat-square&logo=thunderstore&label=Version&link=https%3A%2F%2Fthunderstore.io%2Fc%2Fcontent-warning%2Fp%2FXerren%2FShopAPI%2F)
 
 Exposes an easy-to-use API to add custom items to the in-game shop. Loosely based on the now defunct [ShopUtils mod by hyydsz](https://github.com/hyydsz/ContentWarningShopUtils).
 
