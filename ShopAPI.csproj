@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+		<CWDir Condition=" '$(CWDir)' == '' And Exists('E:\SteamLibrary\steamapps\common\Content Warning') ">E:\SteamLibrary\steamapps\common\Content Warning</CWDir>
+        <CWDir Condition=" '$(CWDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Content Warning</CWDir>
+		<Configurations>Debug;Release;Modman (Release)</Configurations>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+		<!-- 
+		<AssemblyName Condition="'$(Configuration)'!='Modman (Release)'">$(AssemblyName)</AssemblyName>
+		<AssemblyName Condition="'$(Configuration)'=='Modman (Release)'">$(AssemblyName).bepinex</AssemblyName>
+		-->
+    </PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DefineConstants>$(DefineConstants);STEAM</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <DefineConstants>$(DefineConstants);STEAM</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Modman (Release)|AnyCPU'">
+      <DefineConstants>$(DefineConstants);MODMAN</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+		<Reference Condition="'$(Configuration)'=='Modman (Release)'" Include="$(AppData)\r2modmanPlus-local\ContentWarning\profiles\Default\BepInEx\core\BepInEx.dll" Private="false" />
+        <Reference Include="$(CWDir)\Content Warning_Data\Managed\*.dll" Private="false" Publicize="True" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="publish\**" />
+      <EmbeddedResource Remove="publish\**" />
+      <None Remove="publish\**" />
+    </ItemGroup>
+
+    <!-- Use BepInEx's Assembly Publicizer to tell the compiler & IDE that every field, method, etc. is public, in the game assemblies. -->
+    <!-- This makes it easier to change fields and call methods that would otherwise be private. -->
+    <ItemGroup>
+      <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <Target Condition="'$(Configuration)'!='Modman (Release)'" Name="CopyVanillaPlugin" AfterTargets="Build">
+		<!-- The 1 in the destination folder name ensures its the first plugin to load. -->
+        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).dll;preview.png" DestinationFolder="$(CWDir)\Plugins\1$(MSBuildProjectName)" />
+    </Target>
+	
+	<Target Condition="'$(Configuration)'=='Modman (Release)'" Name="CopyBepInExPlugin" AfterTargets="Build">
+		<ItemGroup>
+			<ThunderstoreFiles Include="publish\thunderstore\*.*"/>
+		</ItemGroup>
+        <Copy 
+            SourceFiles="@(ThunderstoreFiles)" 
+            DestinationFolder="$(OutputPath)" 
+        />
+        <Copy 
+            SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(ThunderstoreFiles)" 
+            DestinationFolder="$(AppData)\r2modmanPlus-local\ContentWarning\profiles\Default\BepInEx\plugins\$(MSBuildProjectName)" 
+        />
+	</Target>
+</Project>
