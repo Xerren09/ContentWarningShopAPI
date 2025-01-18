@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ShopAPI.Patches;
+using UnityEngine;
 using UnityEngine.Localization.Settings;
 
 namespace ContentWarningShop.Localisation
@@ -120,6 +121,21 @@ namespace ContentWarningShop.Localisation
             var found = _localeStrings[currLoc].TryGetValue(key, out string str);
             res = str;
             return found;
+        }
+
+        /// <summary>
+        /// Sets default tooltip string on the item. This will be used if you don't otherwise provide localisation for your item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="tooltipString">A ";" separated string of item tooltips. See <see href="https://github.com/Xerren09/ContentWarningShopAPI#localisation"/> for more.</param>
+        public static void SetDefaultTooltips(this Item item, string tooltipString)
+        {
+            var tooltips = tooltipString.Split(';');
+            item.Tooltips = new();
+            foreach (var tooltip in tooltips)
+            {
+                item.Tooltips.Add(new ItemKeyTooltip(tooltip, null, null));
+            }
         }
     }
 }

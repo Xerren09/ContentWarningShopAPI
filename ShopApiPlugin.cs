@@ -17,7 +17,7 @@ namespace ContentWarningShop
     {
         public const string MOD_GUID = "xerren.cwshopapi";
         public const string MOD_NAME = "ShopAPI";
-        public const string MOD_VER = "1.0.0";
+        public const string MOD_VER = "1.0.1";
 
 #if STEAM
         static ShopApiPlugin()

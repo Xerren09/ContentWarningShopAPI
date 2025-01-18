@@ -90,6 +90,10 @@ Note that when localising item tooltips the key must be the item's name, suffixe
 | SelfieGlyph | R (Default) |
 | ZoomGlyph | Scroll wheel |
 
+> [!IMPORTANT]
+> If you don't want to add localisation ( :( ), use the `SetDefaultTooltips` extension method on your `Item` to set default tooltips. 
+> If you set tooltips in the editor, they won't work: this is a bug on Unity's end, not this mod. (those tooltips are serialised to null when you save them, even if they look right in the inspector)
+> Setting a default is recommended in any case, but especially if you don't or only partially provide localisation.
 
 ## Compatibility
 

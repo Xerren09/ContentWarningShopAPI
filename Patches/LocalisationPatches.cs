@@ -40,8 +40,8 @@ namespace ShopAPI.Patches
             {
                 return true;
             }
-            // Parse glyphs into the default tooltips if they weren't localised, without overwriting them on the item (fallback if the item was not localised)
             string key = __instance.name.Trim().Replace(" ", "") + ShopLocalisation.TooltipsSuffix;
+            // Attempt to load previously defined tooltips, in case the current locale is not provided (fallback).
             IEnumerable<string> locTooltips = __instance.Tooltips.Select(ikt => ikt.m_text);
             var ret = new List<ItemKeyTooltip>();
             if (ShopLocalisation.TryGetLocaleString(key, out var localeStr))
@@ -50,9 +50,15 @@ namespace ShopAPI.Patches
             }
             foreach (var tip in locTooltips)
             {
+                if (string.IsNullOrEmpty(tip))
+                {
+                    continue;
+                }
                 string parsedTip = ParseTip(__instance, tip, out IMKbPromptProvider provider, out List<ControllerGlyphs.GlyphType> glyphType);
                 ret.Add(new ItemKeyTooltip(parsedTip, provider, glyphType));
             }
+            // Set localised tooltips back as a failsafe
+            __instance.Tooltips = ret;
             __result = ret;
             return false;
         }
