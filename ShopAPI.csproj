@@ -49,8 +49,14 @@
     </ItemGroup>
 
     <Target Condition="'$(Configuration)'!='Modman (Release)'" Name="CopyVanillaPlugin" AfterTargets="Build">
+		<ItemGroup>
+			<SteamFiles Include="publish\steam\*.*"/>
+		</ItemGroup>
 		<!-- The 1 in the destination folder name ensures its the first plugin to load. -->
-        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).dll;preview.png" DestinationFolder="$(CWDir)\Plugins\1$(MSBuildProjectName)" />
+        <Copy 
+			SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(SteamFiles)" 
+			DestinationFolder="$(CWDir)\Plugins\1$(MSBuildProjectName)" 
+		/>
     </Target>
 	
 	<Target Condition="'$(Configuration)'=='Modman (Release)'" Name="CopyBepInExPlugin" AfterTargets="Build">
