@@ -57,8 +57,9 @@ namespace ShopAPI.Patches
                 string parsedTip = ParseTip(__instance, tip, out IMKbPromptProvider provider, out List<ControllerGlyphs.GlyphType> glyphType);
                 ret.Add(new ItemKeyTooltip(parsedTip, provider, glyphType));
             }
+            // FIX: don't write the new array to the item, assuming it to be set via SetDefaultTooltips
             // Set localised tooltips back as a failsafe
-            __instance.Tooltips = ret;
+            //__instance.Tooltips = ret;
             __result = ret;
             return false;
         }

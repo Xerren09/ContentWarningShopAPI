@@ -1,5 +1,4 @@
-﻿using ShopAPI.Patches;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Localization.Settings;
 
 namespace ContentWarningShop.Localisation
