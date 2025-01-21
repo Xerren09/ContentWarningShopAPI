@@ -31,6 +31,11 @@ public static class Shop
     /// otherwise it may not be accurate.
     /// </remarks>
     public static byte MaxUsedEntryID => (byte)(byte.MaxValue - (byte)_customEntries.Count);
+    /// <summary>
+    /// Get if the player is the host of the current lobby. Will be false even if the player is not in a lobby.
+    /// </summary>
+    public static bool IsHost => SteamLobbyMetadataHandler.IsHost;
+    public static bool InLobby => SteamLobbyMetadataHandler.InLobby;
 
     static Shop()
     {
@@ -65,7 +70,7 @@ public static class Shop
         }
         _items.Add(item);
         SingletonAsset<ItemDatabase>.Instance.AddRuntimeEntry(item);
-        Debug.LogWarning($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
+        Debug.Log($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
     }
 
     /// <summary>

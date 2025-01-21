@@ -15,71 +15,14 @@ namespace ContentWarningShop
     /// <typeparam name="T"></typeparam>
     public class SynchronisedMetadata<T> where T : IConvertible, IComparable
     {
-        #region static
-        private static Callback<LobbyChatUpdate_t> cb_onLobbyStatusUpdate;
-        private static Callback<LobbyCreated_t> cb_onLobbyCreated;
-        private static Callback<LobbyEnter_t> cb_onLobbyEntered;
-        private static event Action? _onLobbyJoined;
-        private static Callback<LobbyDataUpdate_t> cb_onLobbyDataUpdate;
-        private static event Action? _onLobbyDataUpdate;
-
-        private static CSteamID _currentLobby;
-        public static bool InLobby => _currentLobby != default;
-        public static bool IsHost => InLobby && SteamMatchmaking.GetLobbyOwner(_currentLobby) == SteamUser.GetSteamID();
-        
-
-        static SynchronisedMetadata()
-        {
-            cb_onLobbyStatusUpdate = Callback<LobbyChatUpdate_t>.Create(Steam_LobbyLeft);
-            cb_onLobbyCreated = Callback<LobbyCreated_t>.Create(Steam_LobbyCreated);
-            cb_onLobbyEntered = Callback<LobbyEnter_t>.Create(Steam_LobbyEntered);
-            cb_onLobbyDataUpdate = Callback<LobbyDataUpdate_t>.Create(Steam_LobbyDataUpdated);
-        }
-
-        private static void Steam_LobbyCreated(LobbyCreated_t e)
-        {
-            if (e.m_eResult == EResult.k_EResultOK)
-            {
-                _currentLobby = new CSteamID(e.m_ulSteamIDLobby);
-                _onLobbyJoined?.Invoke();
-            }
-        }
-
-        private static void Steam_LobbyEntered(LobbyEnter_t e)
-        {
-            // If we created the lobby, don't call the event again. Otherwise _currentLobby will be default by now
-            if (_currentLobby == default)
-            {
-                _currentLobby = new CSteamID(e.m_ulSteamIDLobby);
-                _onLobbyJoined?.Invoke();
-            }
-        }
-
-        private static void Steam_LobbyLeft(LobbyChatUpdate_t e)
-        {
-            var user = new CSteamID(e.m_ulSteamIDUserChanged);
-            if (user != SteamUser.GetSteamID())
-            {
-                return;
-            }
-            if ((EChatMemberStateChange)e.m_rgfChatMemberStateChange != EChatMemberStateChange.k_EChatMemberStateChangeEntered)
-            {
-                // Lobby left
-                _currentLobby = default;
-            }
-        }
-
-        private static void Steam_LobbyDataUpdated(LobbyDataUpdate_t e)
-        {
-            if (InLobby == false || e.m_ulSteamIDLobby != e.m_ulSteamIDMember)
-            {
-                return;
-            }
-            _onLobbyDataUpdate?.Invoke();
-        }
-        #endregion
-
-        #region instance
+        /// <summary>
+        /// Get if the player is the host of the current lobby. Will be <see langword="false"/> if <see cref="InLobby"/> is.
+        /// </summary>
+        public bool IsHost => SteamLobbyMetadataHandler.IsHost;
+        /// <summary>
+        /// Get if the player is in a Steam Lobby.
+        /// </summary>
+        public bool InLobby => SteamLobbyMetadataHandler.InLobby;
         /// <summary>
         /// The Steam Lobby Metadata key this instance is bound to.
         /// </summary>
@@ -106,7 +49,7 @@ namespace ContentWarningShop
                 {
                     return false;
                 }
-                return _currentLobby == default;
+                return SteamLobbyMetadataHandler.InLobby;
             }
         }
         /// <summary>
@@ -138,14 +81,14 @@ namespace ContentWarningShop
             {
                 throw new ArgumentException($"Key length must not exceed {nameof(Steamworks.Constants.k_nMaxLobbyKeyLength)} ({Steamworks.Constants.k_nMaxLobbyKeyLength}); was {key.Length}", nameof(key));
             }
-            _onLobbyDataUpdate += OnLobbyUpdate;
-            _onLobbyJoined += OnLobbyJoin;
+            SteamLobbyMetadataHandler.OnLobbyDataUpdate += OnLobbyUpdate;
+            SteamLobbyMetadataHandler.OnLobbyJoined += OnLobbyJoin;
             Key = key;
             _value = initialValue;
             // If we are creating the instance late, check if the key already has a registered value or not. If not, create it, if yes, fetch it.
-            if (InLobby)
+            if (SteamLobbyMetadataHandler.InLobby)
             {
-                var valStr = SteamMatchmaking.GetLobbyData(_currentLobby, Key);
+                var valStr = SteamMatchmaking.GetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key);
                 if (string.IsNullOrEmpty(valStr))
                 {
                     SetValue(_value);
@@ -192,7 +135,7 @@ namespace ContentWarningShop
             var canSet = CanSet();
             if (canSet)
             {
-                SteamMatchmaking.SetLobbyData(_currentLobby, Key, ValToString(value));
+                SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(value));
             }
             return canSet;
         }
@@ -204,15 +147,15 @@ namespace ContentWarningShop
         public void Disconnect()
         {
             IsConnected = false;
-            _onLobbyDataUpdate -= OnLobbyUpdate;
-            _onLobbyJoined -= OnLobbyJoin;
+            SteamLobbyMetadataHandler.OnLobbyDataUpdate -= OnLobbyUpdate;
+            SteamLobbyMetadataHandler.OnLobbyJoined -= OnLobbyJoin;
         }
 
         private void OnLobbyJoin()
         {
             if (IsHost)
             {
-                if (SteamMatchmaking.SetLobbyData(_currentLobby, Key, ValToString(_value)))
+                if (SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(_value)))
                 {
                     Debug.Log($"Set join lobby metadata {Key} to {_value} as host.");
                 }
@@ -237,7 +180,7 @@ namespace ContentWarningShop
             {
                 return;
             }
-            var valStr = SteamMatchmaking.GetLobbyData(_currentLobby, Key);
+            var valStr = SteamMatchmaking.GetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key);
             if (string.IsNullOrEmpty(valStr))
             {
                 return;
@@ -260,6 +203,5 @@ namespace ContentWarningShop
         {
             return (TRes)Convert.ChangeType(value, typeof(TRes), CultureInfo.InvariantCulture);
         }
-        #endregion
     }
 }

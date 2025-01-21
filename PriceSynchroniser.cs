@@ -5,46 +5,46 @@ namespace ContentWarningShop
 {
     internal class PriceSynchroniser
     {
-        private static Callback<LobbyCreated_t> cb_onLobbyCreated;
-        private static Callback<LobbyEnter_t> cb_onLobbyEntered;
-        private static bool IsHost => SteamMatchmaking.GetLobbyOwner(LobbyID) == SteamUser.GetSteamID();
-        private static CSteamID LobbyID {  get; set; }
-
         internal static void RegisterCallbacks()
         {
-            cb_onLobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-            cb_onLobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+            SteamLobbyMetadataHandler.OnLobbyJoined += SyncPrices;
+            SteamLobbyMetadataHandler.OnLobbyDataUpdate += OnLobbyDataUpdate;
         }
 
-        private static void OnLobbyCreated(LobbyCreated_t e)
+        private static void OnLobbyDataUpdate()
         {
-            if (e.m_eResult != EResult.k_EResultOK)
+            if (SteamLobbyMetadataHandler.IsHost)
             {
                 return;
             }
-            LobbyID = new(e.m_ulSteamIDLobby);
-            foreach (var item in Shop._items)
-            {
-                var key = $"__{item.PersistentID}_price";
-                SteamMatchmaking.SetLobbyData(LobbyID, key, $"{item.price}");
-                Debug.Log($"Item price registered: {item.name} ({key}) = {item.price}");
-            }
+            SyncPrices();
         }
 
-        private static void OnLobbyEntered(LobbyEnter_t e)
+        internal static void SyncPrices()
         {
-            if (IsHost == true)
+            if (SteamLobbyMetadataHandler.InLobby == false)
             {
                 return;
             }
-            LobbyID = new(e.m_ulSteamIDLobby);
             foreach (var item in Shop._items)
             {
-                var key = $"__{item.PersistentID}_price";
-                var strVal = SteamMatchmaking.GetLobbyData(LobbyID, key);
+                SyncPrice(item);
+            }
+        }
+
+        internal static void SyncPrice(Item item)
+        {
+            var key = $"__{item.PersistentID}_price";
+            if (SteamLobbyMetadataHandler.IsHost)
+            {
+                SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, key, $"{item.price}");
+            }
+            else
+            {
+                var strVal = SteamMatchmaking.GetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, key);
                 item.price = int.Parse(strVal);
-                Debug.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
             }
+            Debug.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
         }
     }
 }
