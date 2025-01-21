@@ -61,10 +61,11 @@ public static class Shop
         if (IsItemRegistered(item) == true)
         {
             Debug.LogWarning($"Item {item.displayName} ({item.persistentID}) already registered.");
+            return;
         }
         _items.Add(item);
         SingletonAsset<ItemDatabase>.Instance.AddRuntimeEntry(item);
-        Debug.LogWarning($"Registered custom item: [{Assembly.GetCallingAssembly().GetSimpleName()}] {item.displayName} ({item.persistentID}).");
+        Debug.LogWarning($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
     }
 
     /// <summary>
@@ -87,6 +88,10 @@ public static class Shop
             if (_customEntries.Contains(item))
             {
                 continue;
+            }
+            if (_customEntries.Count >= (byte.MaxValue - GetVanillaItemDataEntryCount()))
+            {
+                throw new Exception($"Custom ItemDataEntry {item.Name} from {assembly.GetSimpleName()} can not be registered, as its index would overlap with vanilla entries. This is not necessarily an issue with your mod, but the player may have too many custom items installed. The game only supports {byte.MaxValue} entries total, out of which {GetVanillaItemDataEntryCount()} are reserved.");
             }
             _customEntries.Add(item);
             Debug.Log($"Added custom entry type: {item.Name} [{assembly.GetSimpleName()}] - idx: {byte.MaxValue - (_customEntries.Count-1)}");
