@@ -99,6 +99,35 @@ public static class Shop
     }
 
     /// <summary>
+    /// Updates the given item's price and synchronises it with other players.
+    /// </summary>
+    /// <remarks>
+    /// Setting lobby metadata is only allowed if the current player is the lobby's owner. Use the return value to determine if the set was possible.
+    /// </remarks>
+    /// <param name="item"></param>
+    /// <param name="price"></param>
+    /// <returns>
+    /// <see langword="true"/> if updating the price was successful (player is not in a lobby OR the owner of the current lobby).
+    /// <see langword="false"/> if the player is in a lobby but is not the lobby's host.
+    /// </returns>
+    public static bool UpdateItemPrice(Item item, int price)
+    {
+        if (IsItemRegistered(item) == false)
+        {
+            Debug.LogWarning($"Item {item.name} ({item.persistentID}) is not registered with {ShopApiPlugin.MOD_NAME}");
+            return false;
+        }
+        if (SteamLobbyMetadataHandler.IsHost == false && SteamLobbyMetadataHandler.InLobby)
+        {
+            Debug.LogError($"Tried updating item price when not the lobby host; this is not allowed.");
+            return false;
+        }
+        item.price = price;
+        PriceSynchroniser.SyncPrice(item);
+        return true;
+    }
+
+    /// <summary>
     /// Returns the list of item data data entries derived from <see cref="ItemDataEntry"/> in the given assembly.
     /// </summary>
     /// <param name="assembly"></param>

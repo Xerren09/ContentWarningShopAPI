@@ -105,7 +105,7 @@ namespace ContentWarningShop
         /// Checks if assigning a new value is possible from this client.
         /// </summary>
         /// <remarks>
-        /// If the client is not in a lobby, this method returns true and the set value is treated as initialisation before joining one.
+        /// If the client is not in a lobby, returns true, otherwise checks if the player is the lobby's host.
         /// </remarks>
         /// <returns></returns>
         public bool CanSet()
@@ -116,6 +116,9 @@ namespace ContentWarningShop
         /// <summary>
         /// Sets the entry to a new value.
         /// </summary>
+        /// <remarks>
+        /// Setting a new value is only possible by the host of the lobby, or if the player in not in a lobby.
+        /// </remarks>
         /// <param name="value"></param>
         /// <returns>
         /// <see langword="true"/> if assigning the new value from this client was possible, <see langword="false"/> if not.
