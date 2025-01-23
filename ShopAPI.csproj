@@ -48,10 +48,12 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+        <SteamFiles Include="publish\steam\*.*"/>
+        <ThunderstoreFiles Include="publish\thunderstore\*.*"/>
+    </ItemGroup>
+
     <Target Condition="'$(Configuration)'!='Modman (Release)'" Name="CopyVanillaPlugin" AfterTargets="Build">
-		<ItemGroup>
-			<SteamFiles Include="publish\steam\*.*"/>
-		</ItemGroup>
 		<!-- The 1 in the destination folder name ensures its the first plugin to load. -->
         <Copy 
 			SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(SteamFiles)" 
@@ -60,16 +62,25 @@
     </Target>
 	
 	<Target Condition="'$(Configuration)'=='Modman (Release)'" Name="CopyBepInExPlugin" AfterTargets="Build">
-		<ItemGroup>
-			<ThunderstoreFiles Include="publish\thunderstore\*.*"/>
-		</ItemGroup>
-        <Copy 
-            SourceFiles="@(ThunderstoreFiles)" 
-            DestinationFolder="$(OutputPath)" 
-        />
         <Copy 
             SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(ThunderstoreFiles)" 
-            DestinationFolder="$(AppData)\r2modmanPlus-local\ContentWarning\profiles\Default\BepInEx\plugins\$(MSBuildProjectName)" 
+            DestinationFolder="$(AppData)\r2modmanPlus-local\ContentWarning\profiles\Default\BepInEx\plugins\$(MSBuildProjectName)"
         />
 	</Target>
+
+    <Target Condition="'$(Configuration)'=='Modman (Release)'" Name="CreateThunderstorePackage" AfterTargets="CopyBepInExPlugin">
+        <Copy 
+            SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(ThunderstoreFiles)" 
+            DestinationFolder="$(OutputPath)\Package"
+        />
+        <Copy 
+            SourceFiles="$(OutputPath)\$(AssemblyName).dll" 
+            DestinationFiles="$(OutputPath)\$(AssemblyName).bepinex.dll"
+        />
+        <ZipDirectory
+            SourceDirectory="$(OutputPath)\Package"
+            DestinationFile="$(OutputPath)\$(AssemblyName)Package-$(AssemblyVersion).zip"
+            Overwrite="True"
+        />
+    </Target>
 </Project>
