@@ -63,6 +63,10 @@ public static class Shop
             Debug.LogWarning($"Item {item.displayName} ({item.persistentID}) already registered.");
             return;
         }
+        if (item.Category == ShopItemCategory.Invalid)
+        {
+            throw new Exception($"Item {item.displayName} ({item.persistentID}) shop category is set to {nameof(ShopItemCategory.Invalid)}.");
+        }
         _items.Add(item);
         SingletonAsset<ItemDatabase>.Instance.AddRuntimeEntry(item);
         Debug.Log($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
