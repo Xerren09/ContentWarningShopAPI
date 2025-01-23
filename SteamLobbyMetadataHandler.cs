@@ -35,7 +35,6 @@ namespace ContentWarningShop
 
         private static void Steam_LobbyEntered(LobbyEnter_t e)
         {
-            // If we created the lobby, don't call the event again. Otherwise _currentLobby will be default by now
             if (InLobby == false)
             {
                 CurrentLobby = new CSteamID(e.m_ulSteamIDLobby);
