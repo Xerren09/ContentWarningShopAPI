@@ -63,9 +63,13 @@ public static class Shop
             Debug.LogWarning($"Item {item.displayName} ({item.persistentID}) already registered.");
             return;
         }
+        if (item.Category == ShopItemCategory.Invalid)
+        {
+            throw new Exception($"Item {item.displayName} ({item.persistentID}) shop category is set to {nameof(ShopItemCategory.Invalid)}.");
+        }
         _items.Add(item);
         SingletonAsset<ItemDatabase>.Instance.AddRuntimeEntry(item);
-        Debug.LogWarning($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
+        Debug.Log($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
     }
 
     /// <summary>
@@ -96,6 +100,35 @@ public static class Shop
             _customEntries.Add(item);
             Debug.Log($"Added custom entry type: {item.Name} [{assembly.GetSimpleName()}] - idx: {byte.MaxValue - (_customEntries.Count-1)}");
         }
+    }
+
+    /// <summary>
+    /// Updates the given item's price and synchronises it with other players.
+    /// </summary>
+    /// <remarks>
+    /// Setting lobby metadata is only allowed if the current player is the lobby's owner. Use the return value to determine if the set was possible.
+    /// </remarks>
+    /// <param name="item"></param>
+    /// <param name="price"></param>
+    /// <returns>
+    /// <see langword="true"/> if updating the price was successful (player is not in a lobby OR the owner of the current lobby).
+    /// <see langword="false"/> if the player is in a lobby but is not the lobby's host.
+    /// </returns>
+    public static bool UpdateItemPrice(Item item, int price)
+    {
+        if (IsItemRegistered(item) == false)
+        {
+            Debug.LogWarning($"Item {item.name} ({item.persistentID}) is not registered with {ShopApiPlugin.MOD_NAME}");
+            return false;
+        }
+        if (SteamLobbyMetadataHandler.IsHost == false && SteamLobbyMetadataHandler.InLobby)
+        {
+            Debug.LogError($"Tried updating item price when not the lobby host; this is not allowed.");
+            return false;
+        }
+        item.price = price;
+        PriceSynchroniser.SyncPrice(item);
+        return true;
     }
 
     /// <summary>

@@ -5,46 +5,63 @@ namespace ContentWarningShop
 {
     internal class PriceSynchroniser
     {
-        private static Callback<LobbyCreated_t> cb_onLobbyCreated;
-        private static Callback<LobbyEnter_t> cb_onLobbyEntered;
-        private static bool IsHost => SteamMatchmaking.GetLobbyOwner(LobbyID) == SteamUser.GetSteamID();
-        private static CSteamID LobbyID {  get; set; }
-
         internal static void RegisterCallbacks()
         {
-            cb_onLobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-            cb_onLobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+            SteamLobbyMetadataHandler.OnLobbyJoined += SyncPrices;
+            SteamLobbyMetadataHandler.OnLobbyDataUpdate += OnLobbyDataUpdate;
         }
 
-        private static void OnLobbyCreated(LobbyCreated_t e)
+        private static void OnLobbyDataUpdate()
         {
-            if (e.m_eResult != EResult.k_EResultOK)
+            if (SteamLobbyMetadataHandler.IsHost)
             {
                 return;
             }
-            LobbyID = new(e.m_ulSteamIDLobby);
+            SyncPrices();
+        }
+
+        private static void SyncPrices()
+        {
             foreach (var item in Shop._items)
             {
-                var key = $"__{item.PersistentID}_price";
-                SteamMatchmaking.SetLobbyData(LobbyID, key, $"{item.price}");
-                Debug.Log($"Item price registered: {item.name} ({key}) = {item.price}");
+                SyncPrice(item);
             }
         }
 
-        private static void OnLobbyEntered(LobbyEnter_t e)
+        internal static void SyncPrice(Item item)
         {
-            if (IsHost == true)
+            if (SteamLobbyMetadataHandler.InLobby == false)
             {
                 return;
             }
-            LobbyID = new(e.m_ulSteamIDLobby);
-            foreach (var item in Shop._items)
+            var key = $"{ShopApiPlugin.MOD_GUID}_item_{item.PersistentID}_price";
+            var changed = false;
+            if (SteamLobbyMetadataHandler.IsHost)
             {
-                var key = $"__{item.PersistentID}_price";
-                var strVal = SteamMatchmaking.GetLobbyData(LobbyID, key);
-                item.price = int.Parse(strVal);
-                Debug.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
+                SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, key, $"{item.price}");
+                changed = true;
             }
+            else
+            {
+                var strVal = SteamMatchmaking.GetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, key);
+                var val = int.Parse(strVal);
+                changed = item.price != val;
+                item.price = val;
+            }
+            if (changed && ShopHandler.Instance != null)
+            {
+                if (ShopHandler.Instance.m_CategoryItemDic.ContainsKey(item.Category) == false)
+                {
+                    return;
+                }
+                var idx = ShopHandler.Instance.m_CategoryItemDic[item.Category].FindIndex(shopItem => shopItem.Item == item);
+                var newItem = new ShopItem(item);
+                ShopHandler.Instance.m_CategoryItemDic[item.Category][idx] = newItem;
+                ShopHandler.Instance.m_ItemsForSaleDictionary[item.id] = newItem;
+                // Does not actually call the RPC, this is the local effect
+                ShopHandler.Instance.RPCA_ClearCart();
+            }
+            Debug.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
         }
     }
 }

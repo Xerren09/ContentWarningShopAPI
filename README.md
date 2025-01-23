@@ -34,7 +34,7 @@ Use the `RegisterItem` method to register an `Item` to the shop. Ideally the ite
 Make sure to set the `persistentID`, `price`, `purchasable`, `Category`, and `icon` properties at the very least to ensure the item will show up correctly in the store.
 
 > [!NOTE]
-> Item prices are automatically synchronised between players on lobby join. The price set by the lobby's host will be used for the entire lobby. Once a lobby has been created, the price can not be changed.
+> Item prices are automatically synchronised between players on lobby join. The price set by the lobby's host will be used for the entire lobby. Once a lobby has been created, the price of a registered item can be updated via `UpdateItemPrice`.
 
 You can check if a custom item has been already registered via the `IsItemRegistered` method. The list of **all** registered custom items is also available via the `CustomItems` property.
 
