@@ -39,8 +39,11 @@ namespace ContentWarningShop
             get => _value;
         }
         /// <summary>
-        /// Checks if the entry is being actively synced with a lobby.
+        /// Checks if the entry is being actively synced with a lobby. Is <see langword="false"/> if the player is not currently in a lobby.
         /// </summary>
+        /// <remarks>
+        /// To check if this instance will send and receive updates from the SteamAPI, see <see cref="IsConnected"/> instead.
+        /// </remarks>
         public bool IsSynced
         {
             get
@@ -135,12 +138,15 @@ namespace ContentWarningShop
                 ValueChanged?.Invoke(_value);
                 return true;
             }
-            var canSet = CanSet();
-            if (canSet)
+            if (IsHost)
             {
-                SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(value));
+                if (SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(value)) == false)
+                {
+                    Debug.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
+                    return false;
+                }
             }
-            return canSet;
+            return true;
         }
 
         /// <summary>
@@ -162,6 +168,10 @@ namespace ContentWarningShop
                 {
                     Debug.Log($"Set join lobby metadata {Key} to {_value} as host.");
                 }
+                else
+                {
+                    Debug.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
+                }
             }
             else
             {
@@ -179,7 +189,7 @@ namespace ContentWarningShop
         /// </summary>
         protected void FetchValue()
         {
-            if (InLobby == false)
+            if (SteamLobbyMetadataHandler.InLobby == false)
             {
                 return;
             }
