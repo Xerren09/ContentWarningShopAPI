@@ -12,8 +12,8 @@ namespace ContentWarningShop
     /// Setting lobby metadata is only allowed if the current player is the lobby's owner. 
     /// Use <see cref="CanSet"/> to check if assigning a new value is possible from this client.
     /// </remarks>
-    /// <typeparam name="T"></typeparam>
-    public class SynchronisedMetadata<T> where T : IConvertible, IComparable
+    /// <typeparam name="TValue"></typeparam>
+    public class SynchronisedMetadata<TValue> where TValue : IConvertible, IComparable
     {
         /// <summary>
         /// Get if the player is the host of the current lobby. Will be <see langword="false"/> if <see cref="InLobby"/> is.
@@ -27,14 +27,14 @@ namespace ContentWarningShop
         /// The Steam Lobby Metadata key this instance is bound to.
         /// </summary>
         public string Key { get; protected set; } = string.Empty;
-        private T _value = default;
+        private TValue _value = default;
         /// <summary>
         /// The current value of this entry.
         /// </summary>
         /// <remarks>
         /// Check <see cref="IsSynced"/> to see if the value is being actively synced with a lobby.
         /// </remarks>
-        public T Value
+        public TValue Value
         {
             get => _value;
         }
@@ -64,17 +64,26 @@ namespace ContentWarningShop
         /// <summary>
         /// Event raised when <see cref="Value"/> is updated, either locally or remotely.
         /// </summary>
-        public event Action<T>? ValueChanged;
+        public event Action<TValue>? ValueChanged;
+        /// <summary>
+        /// Event raised when the local player created a new Steam Lobby (is hosting a new game).
+        /// </summary>
+        /// <remarks>
+        /// This event can be used to update <see cref="Value"/> when the player creates a new lobby. Since instances retain their current values, if the 
+        /// player leaves a game and hosts a new lobby, their settings may not reflect their own, but rather the last lobby host's. Use this event to apply
+        /// the player's own configurations for the lobby they just created.
+        /// </remarks>
+        public event Action? LobbyHosted;
 
         /// <param name="key">The Steam Lobby Metadata key this instance will synchronise with.</param>
-        /// <param name="initialValue">
-        /// The initial value that should be used before the first sync. 
+        /// <param name="value">
+        /// The initial <see cref="Value"/> that should be used before the first sync. 
         /// If the instance is created while in a lobby, it will first attempt to fetch the current lobby value.
         /// If the key doesn't exist yet, it will attempt to create it with this value (or the first time a lobby is joined).
         /// </param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public SynchronisedMetadata(string key, T initialValue)
+        public SynchronisedMetadata(string key, TValue value)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -84,10 +93,11 @@ namespace ContentWarningShop
             {
                 throw new ArgumentException($"Key length must not exceed {nameof(Steamworks.Constants.k_nMaxLobbyKeyLength)} ({Steamworks.Constants.k_nMaxLobbyKeyLength}); was {key.Length}", nameof(key));
             }
+            SteamLobbyMetadataHandler.OnLobbyCreated += OnLobbyCreated;
             SteamLobbyMetadataHandler.OnLobbyDataUpdate += OnLobbyUpdate;
             SteamLobbyMetadataHandler.OnLobbyJoined += OnLobbyJoin;
             Key = key;
-            _value = initialValue;
+            _value = value;
             // If we are creating the instance late, check if the key already has a registered value or not. If not, create it, if yes, fetch it.
             if (SteamLobbyMetadataHandler.InLobby)
             {
@@ -101,7 +111,7 @@ namespace ContentWarningShop
                     FetchValue();
                 }
             }
-            Debug.Log($"{nameof(SynchronisedMetadata<T>)} instance bound to lobby key: {Key}");
+            Debug.Log($"{nameof(SynchronisedMetadata<TValue>)} instance bound to lobby key: {Key}");
         }
 
         /// <summary>
@@ -126,7 +136,7 @@ namespace ContentWarningShop
         /// <returns>
         /// <see langword="true"/> if assigning the new value from this client was possible, <see langword="false"/> if not.
         /// </returns>
-        public bool SetValue(T value)
+        public bool SetValue(TValue value)
         {
             if (IsConnected == false)
             {
@@ -156,6 +166,7 @@ namespace ContentWarningShop
         public void Disconnect()
         {
             IsConnected = false;
+            SteamLobbyMetadataHandler.OnLobbyCreated -= OnLobbyCreated;
             SteamLobbyMetadataHandler.OnLobbyDataUpdate -= OnLobbyUpdate;
             SteamLobbyMetadataHandler.OnLobbyJoined -= OnLobbyJoin;
         }
@@ -184,6 +195,11 @@ namespace ContentWarningShop
             FetchValue();
         }
 
+        private void OnLobbyCreated()
+        {
+            LobbyHosted?.Invoke();
+        }
+
         /// <summary>
         /// Fetches the most up-to-date value from the lobby if possible.
         /// </summary>
@@ -198,7 +214,7 @@ namespace ContentWarningShop
             {
                 return;
             }
-            var val = StringToVal<T>(valStr);
+            var val = StringToVal<TValue>(valStr);
             if (val != null && val.Equals(_value) == false)
             {
                 Debug.Log($"Synced from lobby metadata {Key}: {_value} -> {val}");

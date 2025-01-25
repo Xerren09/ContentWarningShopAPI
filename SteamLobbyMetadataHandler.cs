@@ -10,6 +10,7 @@ namespace ContentWarningShop
         private static Callback<LobbyDataUpdate_t> cb_onLobbyDataUpdate;
         //
         internal static event Action? OnLobbyJoined;
+        internal static event Action? OnLobbyCreated;
         internal static event Action? OnLobbyDataUpdate;
 
         internal static CSteamID CurrentLobby = CSteamID.Nil;
@@ -29,6 +30,7 @@ namespace ContentWarningShop
             if (e.m_eResult == EResult.k_EResultOK)
             {
                 CurrentLobby = new CSteamID(e.m_ulSteamIDLobby);
+                OnLobbyCreated?.Invoke();
                 OnLobbyJoined?.Invoke();
             }
         }
