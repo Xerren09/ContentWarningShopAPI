@@ -114,6 +114,14 @@ namespace ContentWarningShop
             Debug.Log($"{nameof(SynchronisedMetadata<TValue>)} instance bound to lobby key: {Key}");
         }
 
+        /// <param name="key">The Steam Lobby Metadata key this instance will synchronise with.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public SynchronisedMetadata(string key) : this(key, default)
+        {
+
+        }
+
         /// <summary>
         /// Checks if assigning a new value is possible from this client.
         /// </summary>
@@ -225,6 +233,10 @@ namespace ContentWarningShop
 
         private static string ValToString(object value)
         {
+            if (value == null)
+            {
+                return string.Empty;
+            }
             return (string)Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
         }
 
