@@ -13,8 +13,9 @@ namespace ContentWarningShop
     /// Use <see cref="CanSet"/> to check if assigning a new value is possible from this client.
     /// </remarks>
     /// <typeparam name="TValue"></typeparam>
-    public class SynchronisedMetadata<TValue> where TValue : IConvertible, IComparable
+    public class SynchronisedMetadata<TValue> : IDisposable where TValue : IConvertible, IComparable 
     {
+        private bool isDisposed;
         /// <summary>
         /// Get if the player is the host of the current lobby. Will be <see langword="false"/> if <see cref="InLobby"/> is.
         /// </summary>
@@ -28,6 +29,7 @@ namespace ContentWarningShop
         /// </summary>
         public string Key { get; protected set; } = string.Empty;
         private TValue _value = default;
+
         /// <summary>
         /// The current value of this entry.
         /// </summary>
@@ -56,10 +58,10 @@ namespace ContentWarningShop
             }
         }
         /// <summary>
-        /// Whether this instance will automatically synchronise its key's value or not. 
-        /// Once <see cref="Disconnect"/> was called, the instance will no longer update its value, and a new instance must be created to reconnect.
+        /// Whether this instance is connected to the Steamworks API and will receive events. 
+        /// Once <see cref="Dispose()"/>was called, the instance will no longer update its value, and a new instance must be created to reconnect.
         /// </summary>
-        public bool IsConnected { get; protected set; } = true;
+        public bool IsConnected => isDisposed == false;
 
         /// <summary>
         /// Event raised when <see cref="Value"/> is updated, either locally or remotely.
@@ -146,9 +148,9 @@ namespace ContentWarningShop
         /// </returns>
         public bool SetValue(TValue value)
         {
-            if (IsConnected == false)
+            if (isDisposed)
             {
-                return false;
+                throw new ObjectDisposedException();
             }
             if (InLobby == false)
             {
@@ -168,15 +170,13 @@ namespace ContentWarningShop
         }
 
         /// <summary>
-        /// Disconnects this instance from updates, preventing it from synchronising. 
-        /// This renders this instance useless; create a new instance to reconnect.
+        /// Disconnects this instance from Steamworks API events, preventing it from synchronising. 
+        /// Equivalent to <see cref="Dispose()"/>.
         /// </summary>
+        [Obsolete($"Use Dispose instead.")]
         public void Disconnect()
         {
-            IsConnected = false;
-            SteamLobbyMetadataHandler.OnLobbyCreated -= OnLobbyCreated;
-            SteamLobbyMetadataHandler.OnLobbyDataUpdate -= OnLobbyUpdate;
-            SteamLobbyMetadataHandler.OnLobbyJoined -= OnLobbyJoin;
+            Dispose();
         }
 
         private void OnLobbyJoin()
@@ -213,6 +213,10 @@ namespace ContentWarningShop
         /// </summary>
         protected void FetchValue()
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException();
+            }
             if (SteamLobbyMetadataHandler.InLobby == false)
             {
                 return;
@@ -243,6 +247,21 @@ namespace ContentWarningShop
         private static TRes StringToVal<TRes>(string value)
         {
             return (TRes)Convert.ChangeType(value, typeof(TRes), CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Disconnects this instance from Steamworks API events, preventing it from synchronising and rendering this instance useless.
+        /// </summary>
+        public void Dispose()
+        {
+            if (!isDisposed)
+            {
+                GC.SuppressFinalize(this);
+                SteamLobbyMetadataHandler.OnLobbyCreated -= OnLobbyCreated;
+                SteamLobbyMetadataHandler.OnLobbyDataUpdate -= OnLobbyUpdate;
+                SteamLobbyMetadataHandler.OnLobbyJoined -= OnLobbyJoin;
+                isDisposed = true;
+            }
         }
     }
 }
