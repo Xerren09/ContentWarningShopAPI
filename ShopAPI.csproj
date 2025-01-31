@@ -14,6 +14,8 @@
 		<AssemblyName Condition="'$(Configuration)'!='Modman (Release)'">$(AssemblyName)</AssemblyName>
 		<AssemblyName Condition="'$(Configuration)'=='Modman (Release)'">$(AssemblyName).bepinex</AssemblyName>
 		-->
+		<AssemblyVersion>1.2.0.0</AssemblyVersion>
+		<FileVersion>1.2.0.0</FileVersion>
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
