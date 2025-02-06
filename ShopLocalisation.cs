@@ -26,23 +26,23 @@ namespace ContentWarningShop.Localisation
     {
         private static readonly Dictionary<UnityEngine.Localization.Locale, Dictionary<string, string>> _localeStrings = new();
 
-        public const string TooltipsSuffix = "_ToolTips";
+        public static readonly string TooltipsSuffix = "_ToolTips";
         /// <summary>
         /// Represents the Left Mouse Button glyph.
         /// </summary>
-        public const string UseGlyph = "{key_use}";
+        public static readonly string UseGlyph = "{key_use}";
         /// <summary>
         /// Represents the Right Mouse Button glyph.
         /// </summary>
-        public const string Use2Glyph = "{key_use2}";
+        public static readonly string Use2Glyph = "{key_use2}";
         /// <summary>
         /// Represents the R key glyph (default, can be rebound by the player).
         /// </summary>
-        public const string SelfieGlyph = "{key_selfie}";
+        public static readonly string SelfieGlyph = "{key_selfie}";
         /// <summary>
         /// Represents the Mouse Wheel glyph.
         /// </summary>
-        public const string ZoomGlyph = "{key_zoom}";
+        public static readonly string ZoomGlyph = "{key_zoom}";
 
         static ShopLocalisation()
         {
