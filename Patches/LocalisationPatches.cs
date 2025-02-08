@@ -85,4 +85,18 @@ namespace ShopAPI.Patches
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(ShopItem))]
+    [HarmonyPatch(MethodType.Constructor, new Type[] { typeof(Item) })]
+    internal class ShopItemPatches
+    {
+        [HarmonyPostfix]
+        private static void ShopItem(ref ShopItem __instance, Item dbItem)
+        {
+            if (Shop.IsItemRegistered(dbItem))
+            {
+                __instance.DisplayName = __instance.Item.GetLocalizedDisplayName();
+            }
+        }
+    }
 }

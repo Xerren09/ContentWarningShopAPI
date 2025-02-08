@@ -28,10 +28,26 @@ If you are using BepInEx as your modloader, make sure to add the `[BepInDependen
 
 Once added as a reference to your project, all classes are available under the `ContentWarningShop` namespace. 
 
+#### Creating items
+
+Ideally `Item`s should be preconfigured and packed into an [`AssetBundle`](https://docs.unity3d.com/Manual/AssetBundlesIntro.html), but you can also construct them at runtime if its easier.
+
+Custom `Item`s should have their `persistentID`, `price`, `purchasable`, `Category`, and `icon` properties set to work.
+
+If you would like your item to have a chance to be randomly spawned in the Old World like other items, set `spawnable` to `true`, and `itemType` to `Item.ItemType.Tool`.
+
 ### Registering items
 
-Use the `RegisterItem` method to register an `Item` to the shop. Ideally the item instance is preconfigured and loaded from an AssetBundle, but you can also construct it during runtime.
-Make sure to set the `persistentID`, `price`, `purchasable`, `Category`, and `icon` properties at the very least to ensure the item will show up correctly in the store.
+Items can be registered via the `RegisterItem` method:
+
+```csharp
+//using ContentWarningShop;
+
+var yourCustomItem = yourAssetBundle.LoadAsset<Item>("yourItem");
+
+Shop.RegisterItem(yourCustomItem);
+Shop.RegisterCustomDataEntries();
+```
 
 > [!NOTE]
 > Item prices are automatically synchronised between players on lobby join. The price set by the lobby's host will be used for the entire lobby. Once a lobby has been created, the price of a registered item can be updated via `UpdateItemPrice`.
@@ -51,9 +67,9 @@ For example to synchronise a simple boolean setting with `false` as the initial 
 ```csharp
 public static readonly SynchronisedMetadata<bool> ExampleSetting = new("ExampleSetting", false);
 ```
-`SynchronisedMetadata` instances remain valid between different lobbies, so once bound to a key they can be safely kept in a static property and used for the entire duration of the game.
+Instances will remain valid between different lobbies, so once bound to a key they can be safely kept in a static property and used for the entire duration of the game. 
 
-To update the value, call `SetValue(T value)`. Only the lobby's host may update the value of a key, so the method returns a boolean indicating if the set was allowed. If it was rejected, the instance's value isn't updated. Use the `CanSet` method to check if the current player has permission to update the setting.
+To update the value, call `SetValue(T value)`. Only the lobby's host may update the value of a key, so the method returns a boolean indicating if the set was allowed. If it was rejected, the instance's value isn't updated. The `CanSet` method can be used to check if the current player has permission to update the setting.
 
 > [!IMPORTANT]  
 > Values are converted to strings when passed on to the steam lobby, so make sure your type can be cast to string and back.
@@ -63,13 +79,21 @@ When a key is successfully updated either locally or remotely, the `ValueChanged
 > [!NOTE]
 > When not currently in a lobby, setting the value is permitted as if the current player was the host, and the `ValueChanged` event will still be raised.
 
+In the scenario that you have separate player and lobby settings, and you want to apply the local player's settings when they host a new lobby, make sure to subscribe to the `LobbyHosted` event and overwrite the current value. This ensures that any values set by a previous lobby will be replaced with your player's settings:
+
+```csharp
+ExampleSetting.LobbyHosted += () => {
+    ExampleSetting.SetValue(SomeContentWarningSetting.Value);
+};
+```
+
 ### Localisation
 
-The game's built-in localisation implementation is not extendable, so a custom solution is included with the mod under the `ContentWarningShop.Localisation` namespace. This patches `Item.GetLocalizedDisplayName` and `Item.GetTootipData`.
+The game's built-in localisation implementation is not extendable, so a custom solution is included with the mod under the `ContentWarningShop.Localisation` namespace. This patches `Item.GetLocalizedDisplayName`, `Item.GetTootipData`, and the `ShopItem`'s constructor.
 
-Use the `ShopLocalisation` class to add localised strings to your items. Each string is represented as a key-value pair assigned to a specific locale. For built in strings such as display name and tooltips, the item's unity object name (filename) is used or prefixed. For example, to localise the Item "Spookbox" the key would be simply also "Spookbox".
+Use the `ShopLocalisation` class to add localised strings to your items. Each string is represented as a key-value pair assigned to a specific locale. For built in strings such as display name and tooltips, the item's unity object name (filename) is used or prefixed. For example, to localise an `Item` with the object name "Spookbox", the key would also be simply "Spookbox".
 
-When adding locale strings, use the constants defined in the `LocaleKeys` static class to retrieve a locale used by the game via the `ShopLocalisation.TryGetLocale` method:
+When adding locale strings, use the constants defined in the `LocaleKeys` static class to retrieve a locale used by the game via the `ShopLocalisation.TryGetLocale` method. These locales are guaranteed to be available:
 
 ```csharp
 ShopLocalisation.TryGetLocale(LocaleKeys.English, out UnityEngine.Localization.Locale locale);
@@ -81,7 +105,7 @@ The returned standard Unity Locale object can then be used via the `AddLocaleStr
 locale?.AddLocaleString("Spookbox_ToolTips", $"{ShopLocalisation.UseGlyphString} Play;{ShopLocalisation.Use2GlyphString} Next Track");
 ```
 
-Note that when localising item tooltips the key must be the item's name, suffixed with `_ToolTips` (`ShopLocalisation.TooltipsSuffix`), and the value must be a `;` separated list. To display action glyphs (such as right mouse button, etc) use the included constants in your strings, and the appropriate icon will be inserted into the tooltip by the game:
+Note that when localising item tooltips, the key must be the item's name suffixed with `_ToolTips` (`ShopLocalisation.TooltipsSuffix`), and the value must be a `;` separated list. To display action glyphs (for example "[Left Click] Toggle", etc) use the glyph strings defined on the `ShopLocalisation` class in your strings, and the appropriate icon will be inserted into the tooltip by the game:
 
 | Const | Glyph |
 | -------- | ------- |
@@ -91,9 +115,9 @@ Note that when localising item tooltips the key must be the item's name, suffixe
 | ZoomGlyph | Scroll wheel |
 
 > [!IMPORTANT]
-> If you don't want to add localisation ( :( ), use the `SetDefaultTooltips` extension method on your `Item` to set default tooltips. 
+> If you don't want to add full localisation ( :( ), use the `SetDefaultTooltips` extension method on your `Item` to set default tooltips. 
 > If you set tooltips in the editor, they won't work: this is a bug on Unity's end, not this mod. (those tooltips are serialised to null when you save them, even if they look right in the inspector)
-> Setting a default is recommended in any case, but especially if you don't or only partially provide localisation.
+> Setting a default is recommended in any case, but especially if you don't- or only partially provide localisation.
 
 ## Compatibility
 

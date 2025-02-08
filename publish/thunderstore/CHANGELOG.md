@@ -3,6 +3,18 @@
 All notable changes will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0
+- DLLs are now correctly versioned
+- Added default value constructor to SynchronisedMetadata
+- SynchronisedMetadata now implements IDisposable
+  - Disconnect() is now obsolete but calls Dispose()
+- Added LobbyHosted event to SynchronisedMetadata
+  - Invoked when the local player successfully creates a new lobby
+  - Use this to overwrite any remnant settings from a previous lobby
+- `ShopItem` now correctly uses localised item names whenever available
+- Items registered to the shop via the mod will now be considered when spawning random items in the Old World
+  - For an item to be eligible, `spawnable` must be true and `itemType` must be `Item.ItemType.Tool`
+
 ## 1.1.0
 - Fixed an issue where all synchronisation broke after leaving a lobby and joining a new one in the same session.
 
