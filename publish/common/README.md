@@ -1,13 +1,8 @@
 Content Warning Shop API
 ===
-[![Steam Downloads](https://img.shields.io/steam/downloads/3408837293?style=for-the-badge&logo=steam&color=blue&label=Downloads)](https://steamcommunity.com/sharedfiles/filedetails/?id=3408837293)
-[![Steam Subscriptions](https://img.shields.io/steam/subscriptions/3408837293?style=for-the-badge&logo=steam&color=blue&label=Subscriptions)](https://steamcommunity.com/sharedfiles/filedetails/?id=3408837293)
-[![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/Xerren/ShopAPI?style=for-the-badge&logo=thunderstore&logoColor=white&color=blue&label=Downloads)](https://thunderstore.io/c/content-warning/p/Xerren/ShopAPI/)
-[![NuGet Version](https://img.shields.io/nuget/v/Xerren.ContentWarning.ShopAPI?style=for-the-badge&logo=nuget&logoColor=white&color=blue&label=Version)](https://www.nuget.org/packages/Xerren.ContentWarning.ShopAPI)
+Exposes an easy-to-use API to add custom items to the in-game shop in Content Warning.
 
-Exposes an easy-to-use API to add custom items to the in-game shop. Loosely based on the now defunct [ShopUtils mod by hyydsz](https://github.com/hyydsz/ContentWarningShopUtils).
-
-This project is built on top of the [mod template](https://github.com/landfallgames/ExampleCWPlugin) Landfall generously released. 🧡
+See the mod's [GitHub repository](https://github.com/Xerren09/ContentWarningShopAPI/) for detailed setup instructions and usage information.
 
 ## Features
 
@@ -15,48 +10,25 @@ This project is built on top of the [mod template](https://github.com/landfallga
 * **Synchronisation:** Easily synchronise any arbitrary settings between players in a lobby using [Steam Lobby Metadata](https://partner.steamgames.com/doc/features/multiplayer/matchmaking#6) keys via the `SynchronisedMetadata<T>` class.
 * **Localisation:** Extends and opens up the game's localisation system to allow items to be translated to the supported locales by patching item and shop related localised methods.
 
-## Setup
-
-### NuGet (Recommended)
-
-The easiest way to use the library is by installing the latest version of the [NuGet package](https://www.nuget.org/packages/Xerren.ContentWarning.ShopAPI) to your project.
-
-> [!NOTE]
-> The NuGet package is built targeting the Steam Workshop (vanilla mod loader), but it can safely be used when developing BepInEx mods as well.
-
-### Manual
-
-Download the [latest DLL](https://github.com/Xerren09/ContentWarningShopAPI/releases/latest) and add a reference to it in your project. If you are referencing a local DLL, be sure to set "Copy Local" to `No` to avoid distributing it with your mod, as this will cause issues.
-
-> [!IMPORTANT]
-> The DLLs available on the releases page are built for use with different mod loaders. **For development, use the one without a suffix**, regardless of if you are building your mod for the Steam Workshop (vanilla mod loader) or Thunderstore (BepInEx).
->
-> The version suffixed with `.bepinex` expects BepInEx as a mod loader and will not work without it. It is there for manual installations but should not be used otherwise.
->
-> In all releases of this mod the assembly's name will be without a suffix, so which version is loaded at runtime should not matter.
-
-### Integration
+## Integration
 
 **DO NOT** bundle the mod's DLL with your own. Ensure that no `ShopAPI.dll` is included with your build.
 
 Depending on your publishing target, you should instead require it as a dependency on your publishing platform:
 
-> [!IMPORTANT]
-> If you are referencing a local DLL, be sure to set "Copy Local" to `No` to avoid distributing it with your mod, as this will cause issues.
-
-#### Steam Workshop
+### Steam Workshop
 
 When publishing on the Steam Workshop, add [this Workshop Item ](https://steamcommunity.com/sharedfiles/filedetails/?id=3408837293) as your item's dependency via the "Add/Remove Required Items" option (on your mod's page right hand side panel). 
 
 Steam will ensure that the dependency will load before your mod when the game is launched.
 
-#### Thunderstore (BepInEx)
+### Thunderstore (BepInEx)
 
-If you are building a BepInEx plugin, add this mod as a dependency to your plugin's main file:
+When building a BepInEx plugin, add this mod as a dependency to your plugin's main file:
 
 ```csharp
 [BepInDependency(ShopApiPlugin.MOD_GUID)]
-public class YourCustomPlugin : BaseUnityPlugin 
+public class YourCustomPlugin : BaseUnityPlugin
 {
     // ...
 }
@@ -91,7 +63,7 @@ Shop.RegisterItem(yourCustomItem);
 Shop.RegisterCustomDataEntries();
 ```
 
-> [!NOTE]
+> **NOTE:**
 > Item prices are automatically synchronised between players on lobby join. The price set by the lobby's host will be used for the entire lobby.
 
 You can check if a custom item has been already registered via the `IsItemRegistered` method. The list of **all** registered *custom* items is also available via the `CustomItems` property.
@@ -113,7 +85,7 @@ This will re-synchronise the item's price to every player. Note that only the lo
 
 The `SynchronisedMetadata<T>` class allows arbitrary settings to be synchronised between players through the use of [Steam Lobby Metadata](https://partner.steamgames.com/doc/features/multiplayer/matchmaking#6) keys. Simply create a new instance with a specific type and key and it will be automatically updated whenever the key's value is changed.
 
-> [!TIP]
+> **TIP:**
 > Consider prepending your mod's GUID to the key to ensure it won't accidentally collide with a different mod. 
 
 For example to synchronise a simple boolean setting with `false` as the initial value:
@@ -126,10 +98,10 @@ To update a setting's value, call `SetValue(T value)`. Only the lobby's host may
 
 The `ValueChanged` event will be raised with the new (current) value when a key is updated either locally or remotely.
 
-> [!IMPORTANT]  
+> **IMPORTANT:**
 > Values are converted to strings when passed on to the steam lobby, so make sure your type can be cast to string and back.
 
-> [!NOTE]
+> **NOTE:**
 > When not currently in a lobby, setting the value is permitted as if the current player was the host, and the `ValueChanged` event will still be raised.
 
 In the scenario that you have separate player and lobby settings, and you want to apply the local player's settings when they host a new lobby, make sure to subscribe to the `LobbyHosted` event and overwrite the current value. This ensures that any values set by a previous lobby will be replaced with your player's settings:
@@ -188,7 +160,7 @@ When localising item tooltips, the key must be the item's name suffixed with `_T
 | ShopLocalisation.SelfieGlyph | R (Default) |
 | ShopLocalisation.ZoomGlyph | Scroll wheel |
 
-> [!IMPORTANT]
+> **IMPORTANT:**
 > If you don't want to add full localisation ( :( ), use the `SetDefaultTooltips` extension method on your `Item` to set default tooltips. 
 > If you set tooltips in the editor, they won't work: this is a bug on Unity's end, not this mod. (those tooltips are serialised to null when you save them, even if they look right in the inspector)
 > Setting a default is recommended in any case, but especially if you don't- or only partially provide localisation.
@@ -197,7 +169,7 @@ When localising item tooltips, the key must be the item's name suffixed with `_T
 
 This mod patches `ItemInstanceData`'s `GetEntryIdentifier` and `GetEntryType` methods which are used by the game to serialise and deserialise items when synchronising state between players. Unfortunately, the IDs are hardcoded and there is no way to "reserve" one for a specific type, which means two mods patching these same methods can interpret the same values as their own entries incorrectly. To avoid most (hopefully all) collisions like this, entry IDs used by this mod are counted backwards, from `byte.MaxValue`. However, just to be safe the `Shop` class exposes a `MaxUsedEntryID` property that returns the lowest entry ID it uses, above which all other IDs are reserved.
 
-> [!WARNING]  
+> **WARNING:**
 > `MaxUsedEntryID` will not be accurate until all other mods have initialised and registered their items. Try to check for this value as late as possible, after all other mods are loaded.
 
 Obviously if you aren't already using this mod, you don't want to require it just for this; use this snippet to check if this mod is in use and attempt to fetch this value as a "soft" dependency:
@@ -226,3 +198,7 @@ private static byte GetMaxShopReservedID()
     return 0;
 }
 ```
+
+## Reporting Issues
+
+Encountered a bug or issue? Please let me know by opening a [new Issue over on GitHub](https://github.com/Xerren09/ContentWarningSpookbox/issues): briefly describe the issue, include any potential error messages, and any relevant context or (un)expected behavior.
