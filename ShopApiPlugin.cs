@@ -22,6 +22,7 @@ namespace ContentWarningShop
 #if STEAM
         static ShopApiPlugin()
         {
+            SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
             Debug.Log($"{MOD_GUID} initialised via the vanilla mod loader.");
         }
 #elif MODMAN
@@ -29,6 +30,7 @@ namespace ContentWarningShop
         void Awake()
         {
             harmony.PatchAll();
+            SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
             Debug.Log($"{MOD_GUID} initialised via BepInEx mod loader.");
         }
 #endif
