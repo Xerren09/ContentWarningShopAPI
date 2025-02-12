@@ -98,9 +98,8 @@
   
     <!-- Deploy full Steam-Release build and files to vanilla local plugins dir for Workshop publish -->
     <Target Condition="'$(Configuration)'=='Release'" Name="CopyReleaseVanillaPlugin" AfterTargets="Build">
-        <!--
-        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(SharedFiles);@(SteamFiles)" DestinationFolder="$(OutputPath)\Publish" />
-        -->
+        <!-- Create SteamCMD publish package -->
+        <Copy SourceFiles="$(OutputPath)\$(AssemblyName).dll;@(SharedFiles)" DestinationFolder="$(OutputPath)\Publish" />
         <!-- Clear Steam Workshop deploy folder -->
         <RemoveDir Directories="$(CWPluginOutputPath)" />
         <Message Text="Cleaned $(CWPluginOutputPath)" Importance="high" />

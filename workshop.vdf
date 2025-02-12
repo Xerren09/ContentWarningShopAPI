@@ -1,0 +1,29 @@
+"workshopitem"
+{
+    "appid" "2881650"
+    "publishedfileid" "3408837293"
+    "contentfolder" "D:\Code\GitHub\ContentWarningShopAPI\bin\Release\netstandard2.1\Publish"
+    "previewfile" "D:\Code\GitHub\ContentWarningShopAPI\publish\steam\preview.png"
+    "visibility" "0"
+    "title" "ShopAPI"
+    "description" "Exposes an easy-to-use API to add custom items to the in-game shop. 
+
+    [i][b]This mod is meant for other mod developers, and does not add any extra content on its own.[/b][/i]
+
+    [h2]For players[/h2]
+    [b] This mod needs to be first in your Load Order so other mods that depend on it will work.[/b] 
+    If you are experiencing issues:
+    [list]
+        [*]Go to your Steam Library
+        [*]Right click Content Warning
+        [*]Click "Properties"
+        [*]Select "Workshop" on the right-hand side
+        [*]Drag "ShopAPI" to the top of the list
+    [/list] 
+
+    [h2]For developers[/h2] 
+    Source and instructions are available at the mod's repository: [url=https://github.com/Xerren09/ContentWarningShopAPI] https://github.com/Xerren09/ContentWarningShopAPI [/url] 
+
+    If you run into any problems, please open an new Issue on GitHub.
+    "
+}
