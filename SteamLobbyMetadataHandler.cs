@@ -31,6 +31,8 @@ namespace ContentWarningShop
             cb_onLobbyCreated = Callback<LobbyCreated_t>.Create(Steam_LobbyCreated);
             cb_onLobbyEntered = Callback<LobbyEnter_t>.Create(Steam_LobbyEntered);
             cb_onLobbyDataUpdate = Callback<LobbyDataUpdate_t>.Create(Steam_LobbyDataUpdated);
+
+            _initialised = true;
         }
 
         private static void Steam_LobbyCreated(LobbyCreated_t e)
