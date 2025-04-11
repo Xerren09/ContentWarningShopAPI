@@ -77,6 +77,11 @@
             <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalThisAssemblyFields Condition="'$(Configuration)'=='Modman'" Include="IsBepinexBuild" Boolean="true" />
+        <AdditionalThisAssemblyFields Condition="'$(Configuration)'!='Modman'" Include="IsBepinexBuild" Boolean="false" />
+    </ItemGroup>
   
     <ItemGroup>
         <!-- Mod Package assets -->
