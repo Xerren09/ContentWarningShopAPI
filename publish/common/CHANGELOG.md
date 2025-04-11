@@ -3,6 +3,10 @@
 All notable changes will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## 1.2.1
+- Steamworks events are now immediately subscribed on plugin initialisation, instead of on first item registration
+
 ## 1.2.0
 - DLLs are now correctly versioned
 - Added default value constructor to SynchronisedMetadata
