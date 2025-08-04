@@ -79,6 +79,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <BuildMetadata Condition="'$(Configuration)'=='Modman'" Include="bepinex" />
         <AdditionalThisAssemblyFields Condition="'$(Configuration)'=='Modman'" Include="IsBepinexBuild" Boolean="true" />
         <AdditionalThisAssemblyFields Condition="'$(Configuration)'!='Modman'" Include="IsBepinexBuild" Boolean="false" />
     </ItemGroup>
