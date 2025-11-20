@@ -3,6 +3,10 @@
 All notable changes will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0
+- Added `STEAM_WORKSHOP_ITEM_ID` public const to `ShopApiPlugin`.
+- [Internal] Added custom logger so events can be found easier when debugging via Player.log 
+- Bepinex DLL now has `.bepinex` appended to the informal / product version
 
 ## 1.2.1
 - Steamworks events are now immediately subscribed on plugin initialisation, instead of on first item registration
