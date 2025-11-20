@@ -24,7 +24,7 @@ namespace ContentWarningShop
         static ShopApiPlugin()
         {
             SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
-            Debug.Log($"{MOD_GUID} initialised via the vanilla mod loader.");
+            ShopAPI.Logger.Log($"Initialised via the vanilla mod loader.");
         }
 #elif MODMAN
         private Harmony harmony = new Harmony(MOD_GUID);
@@ -32,7 +32,7 @@ namespace ContentWarningShop
         {
             harmony.PatchAll();
             SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
-            Debug.Log($"{MOD_GUID} initialised via BepInEx mod loader.");
+            ShopAPI.Logger.Log($"Initialised via BepInEx mod loader.");
         }
 #endif
     }

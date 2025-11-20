@@ -47,7 +47,7 @@ namespace ContentWarningShop.Patches
             // Let the default implementation throw an error
             if (entry == default)
             {
-                Debug.LogWarning($"Entry identifier {idx} should be valid but resolved to null in ShopAPI database.");
+                ShopAPI.Logger.LogWarning($"Entry identifier {idx} should be valid but resolved to null in ShopAPI database.");
                 return true;
             }
             __result = (ItemDataEntry)entry.GetConstructor(Array.Empty<Type>()).Invoke(null);

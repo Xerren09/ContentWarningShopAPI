@@ -113,7 +113,7 @@ namespace ContentWarningShop
                     FetchValue();
                 }
             }
-            Debug.Log($"{nameof(SynchronisedMetadata<TValue>)} instance bound to lobby key: {Key}");
+            ShopAPI.Logger.Log($"{nameof(SynchronisedMetadata<TValue>)} instance bound to lobby key: {Key}");
         }
 
         /// <param name="key">The Steam Lobby Metadata key this instance will synchronise with.</param>
@@ -162,7 +162,7 @@ namespace ContentWarningShop
             {
                 if (SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(value)) == false)
                 {
-                    Debug.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
+                    ShopAPI.Logger.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
                     return false;
                 }
             }
@@ -185,11 +185,11 @@ namespace ContentWarningShop
             {
                 if (SteamMatchmaking.SetLobbyData(SteamLobbyMetadataHandler.CurrentLobby, Key, ValToString(_value)))
                 {
-                    Debug.Log($"Set join lobby metadata {Key} to {_value} as host.");
+                    ShopAPI.Logger.Log($"Set join lobby metadata {Key} to {_value} as host.");
                 }
                 else
                 {
-                    Debug.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
+                    ShopAPI.Logger.LogError($"Could not set {Key} to {_value}, despite being the lobby host.");
                 }
             }
             else
@@ -229,7 +229,7 @@ namespace ContentWarningShop
             var val = StringToVal<TValue>(valStr);
             if (val != null && val.Equals(_value) == false)
             {
-                Debug.Log($"Synced from lobby metadata {Key}: {_value} -> {val}");
+                ShopAPI.Logger.Log($"Synced from lobby metadata {Key}: {_value} -> {val}");
                 _value = val;
                 ValueChanged?.Invoke(_value);
             }

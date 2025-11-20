@@ -53,7 +53,7 @@ namespace ContentWarningShop.Localisation
                     _localeStrings.Add(loc, new Dictionary<string, string>());
                 }
             }
-            Debug.Log($"ShopLocalisation loaded {_localeStrings.Count} locales.");
+            ShopAPI.Logger.Log($"ShopLocalisation loaded {_localeStrings.Count} locales.");
         }
 
         /// <summary>
@@ -82,6 +82,10 @@ namespace ContentWarningShop.Localisation
                     break;
                 }
             }
+            if (loc == null)
+            {
+                ShopAPI.Logger.Log($"Locale with ID {locId} not found!");
+            }
             locale = loc;
             return loc != null;
         }
@@ -106,6 +110,7 @@ namespace ContentWarningShop.Localisation
             {
                 _localeStrings[loc][key] = str;
             }
+            ShopAPI.Logger.Log($"Added locale string {loc.LocaleName} : {key}-{str}");
         }
 
         /// <summary>
@@ -134,6 +139,7 @@ namespace ContentWarningShop.Localisation
             foreach (var tooltip in tooltips)
             {
                 item.Tooltips.Add(new ItemKeyTooltip(tooltip, null, null));
+                ShopAPI.Logger.Log($"Added default tooltip to {item.displayName} : {tooltip}");
             }
         }
     }
