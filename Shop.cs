@@ -60,7 +60,7 @@ public static class Shop
     {
         if (IsItemRegistered(item) == true)
         {
-            Debug.LogWarning($"Item {item.displayName} ({item.persistentID}) already registered.");
+            ShopAPI.Logger.LogWarning($"Item {item.displayName} ({item.persistentID}) already registered.");
             return;
         }
         if (item.Category == ShopItemCategory.Invalid)
@@ -69,7 +69,7 @@ public static class Shop
         }
         _items.Add(item);
         SingletonAsset<ItemDatabase>.Instance.AddRuntimeEntry(item);
-        Debug.Log($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
+        ShopAPI.Logger.Log($"Registered custom item: {item.displayName} ({item.persistentID}) [{Assembly.GetCallingAssembly().GetSimpleName()}].");
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public static class Shop
                 throw new Exception($"Custom ItemDataEntry {item.Name} from {assembly.GetSimpleName()} can not be registered, as its index would overlap with vanilla entries. This is not necessarily an issue with your mod, but the player may have too many custom items installed. The game only supports {byte.MaxValue} entries total, out of which {GetVanillaItemDataEntryCount()} are reserved.");
             }
             _customEntries.Add(item);
-            Debug.Log($"Added custom entry type: {item.Name} [{assembly.GetSimpleName()}] - idx: {byte.MaxValue - (_customEntries.Count-1)}");
+            ShopAPI.Logger.Log($"Added custom entry type: {item.Name} [{assembly.GetSimpleName()}] - idx: {byte.MaxValue - (_customEntries.Count-1)}");
         }
     }
 
@@ -118,12 +118,12 @@ public static class Shop
     {
         if (IsItemRegistered(item) == false)
         {
-            Debug.LogWarning($"Item {item.name} ({item.persistentID}) is not registered with {ShopApiPlugin.MOD_NAME}");
+            ShopAPI.Logger.LogWarning($"Item {item.name} ({item.persistentID}) is not registered with {ShopApiPlugin.MOD_NAME}");
             return false;
         }
         if (SteamLobbyMetadataHandler.IsHost == false && SteamLobbyMetadataHandler.InLobby)
         {
-            Debug.LogError($"Tried updating item price when not the lobby host; this is not allowed.");
+            ShopAPI.Logger.LogError($"Tried updating item price when not the lobby host; this is not allowed.");
             return false;
         }
         item.price = price;
@@ -146,7 +146,7 @@ public static class Shop
         }
         catch (ReflectionTypeLoadException ex)
         {
-            Debug.LogError(ex.Message);
+            ShopAPI.Logger.LogError(ex.Message);
             return Array.Empty<Type>();
         }
         var sourceType = typeof(ItemDataEntry);
@@ -176,7 +176,7 @@ public static class Shop
         {
             var types = GetItemDataEntries(typeof(ItemDataEntry).Assembly);
             _vanillaEntryCount = (byte)types.Length;
-            Debug.Log($"Vanilla data entries found: {_vanillaEntryCount} -> max vanilla ID: {_vanillaEntryCount}");
+            ShopAPI.Logger.Log($"Vanilla data entries found: {_vanillaEntryCount} -> max vanilla ID: {_vanillaEntryCount}");
         }
         return _vanillaEntryCount;
     }

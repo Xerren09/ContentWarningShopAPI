@@ -12,7 +12,7 @@ namespace ShopAPI.Patches
         static void Populate(RoundSpawnerTools __instance)
         {
             var customSpawnables = Shop.CustomItems.Where(item => item.spawnable && item.itemType == Item.ItemType.Tool);
-            Debug.Log($"Added {customSpawnables.Count()} custom items marked as spawnable to {nameof(RoundSpawnerTools)}");
+            ShopAPI.Logger.Log($"Added {customSpawnables.Count()} custom items marked as spawnable to {nameof(RoundSpawnerTools)}");
             __instance.possibleSpawns.AddRange(customSpawnables);
         }
     }

@@ -18,12 +18,13 @@ namespace ContentWarningShop
         public const string MOD_GUID = "xerren.cwshopapi";
         public const string MOD_NAME = "ShopAPI";
         public const string MOD_VER = ThisAssembly.AssemblyVersion;
+        public const ulong STEAM_WORKSHOP_ITEM_ID = 3408837293;
 
 #if STEAM
         static ShopApiPlugin()
         {
             SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
-            Debug.Log($"{MOD_GUID} initialised via the vanilla mod loader.");
+            ShopAPI.Logger.Log($"Initialised via the vanilla mod loader.");
         }
 #elif MODMAN
         private Harmony harmony = new Harmony(MOD_GUID);
@@ -31,7 +32,7 @@ namespace ContentWarningShop
         {
             harmony.PatchAll();
             SteamLobbyMetadataHandler.RegisterSteamworksCallbacks();
-            Debug.Log($"{MOD_GUID} initialised via BepInEx mod loader.");
+            ShopAPI.Logger.Log($"Initialised via BepInEx mod loader.");
         }
 #endif
     }

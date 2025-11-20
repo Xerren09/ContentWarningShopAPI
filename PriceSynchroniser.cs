@@ -61,7 +61,7 @@ namespace ContentWarningShop
                 // Does not actually call the RPC, this is the local effect
                 ShopHandler.Instance.RPCA_ClearCart();
             }
-            Debug.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
+            ShopAPI.Logger.Log($"Item price synchronised: {item.name} ({key}) = {item.price}");
         }
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "ShopAPI",
-    "version_number": "1.2.1",
+    "version_number": "1.3.0",
     "website_url": "https://github.com/Xerren09/ContentWarningShopAPI",
     "description": "Exposes an easy-to-use API to add custom items to the in-game shop.",
     "dependencies": [
