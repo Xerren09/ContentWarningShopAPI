@@ -18,7 +18,7 @@ namespace ContentWarningShop
         public const string MOD_GUID = "xerren.cwshopapi";
         public const string MOD_NAME = "ShopAPI";
         public const string MOD_VER = ThisAssembly.AssemblyVersion;
-        public const ulong W_ID = 3408837293;
+        public const ulong STEAM_WORKSHOP_ITEM_ID = 3408837293;
 
 #if STEAM
         static ShopApiPlugin()
