@@ -44,18 +44,6 @@ namespace ContentWarningShop.Localisation
         /// </summary>
         public static readonly string ZoomGlyph = "{key_zoom}";
 
-        static ShopLocalisation()
-        {
-            foreach (var loc in LocalizationSettings.AvailableLocales.Locales)
-            {
-                if (_localeStrings.ContainsKey(loc) == false)
-                {
-                    _localeStrings.Add(loc, new Dictionary<string, string>());
-                }
-            }
-            ShopAPI.Logger.Log($"ShopLocalisation loaded {_localeStrings.Count} locales.");
-        }
-
         /// <summary>
         /// Gets the currently used locale.
         /// </summary>
@@ -73,21 +61,16 @@ namespace ContentWarningShop.Localisation
         /// <returns><see langword="true"/> if a locale with the given name was found; otherwise <see langword="false"/>.</returns>
         public static bool TryGetLocale(string locId, out UnityEngine.Localization.Locale locale)
         {
-            UnityEngine.Localization.Locale loc = null;
-            foreach (var sLoc in _localeStrings.Keys)
-            {
-                if (sLoc.LocaleName.ToLower().Contains(locId))
-                {
-                    loc = sLoc;
-                    break;
-                }
-            }
-            if (loc == null)
+            LocalizationSettings.InitializationOperation.WaitForCompletion();
+            var ret = LocalizationSettings.AvailableLocales.Locales.Find(loc => loc.LocaleName.ToLower().Contains(locId));
+            if (ret == null)
             {
                 ShopAPI.Logger.Log($"Locale with ID {locId} not found!");
+                locale = null;
+                return false;
             }
-            locale = loc;
-            return loc != null;
+            locale = ret;
+            return true;
         }
 
         /// <summary>
@@ -100,17 +83,18 @@ namespace ContentWarningShop.Localisation
         {
             if (_localeStrings.ContainsKey(loc) == false)
             {
-                return;
+                _localeStrings.Add(loc, new() { {key, str} });
             }
-            if (_localeStrings[loc].ContainsKey(key) == false)
+            else if (_localeStrings[loc].ContainsKey(key) == false)
             {
                 _localeStrings[loc].Add(key, str);
             }
             else
             {
+                ShopAPI.Logger.LogWarning($"Overwriting locale string {loc.LocaleName} : {key} = {_localeStrings[loc][key]} --> {str}");
                 _localeStrings[loc][key] = str;
             }
-            ShopAPI.Logger.Log($"Added locale string {loc.LocaleName} : {key}-{str}");
+            ShopAPI.Logger.Log($"Added locale string {loc.LocaleName} : {key} = {str}");
         }
 
         /// <summary>
@@ -122,9 +106,14 @@ namespace ContentWarningShop.Localisation
         public static bool TryGetLocaleString(string key, out string res)
         {
             var currLoc = GetCurrentLocale();
-            var found = _localeStrings[currLoc].TryGetValue(key, out string str);
-            res = str;
-            return found;
+            if (_localeStrings.ContainsKey(currLoc))
+            {
+                var found = _localeStrings[currLoc].TryGetValue(key, out string str);
+                res = str;
+                return found;
+            }
+            res = string.Empty;
+            return false;
         }
 
         /// <summary>
